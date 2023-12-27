@@ -7,3 +7,4 @@ public/
 .deploy*/
 _multiconfig.yml
 deploy.md
+.env
