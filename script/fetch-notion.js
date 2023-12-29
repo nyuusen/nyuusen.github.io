@@ -30,15 +30,16 @@ async function fetchNotionArticles() {
       process.exit(0)
     }
     
-    // ファイル内容を構成する
-    let content = ''
     
     for (const r of results) {      
       // ファイル名を作成する(yyyy_mm_dd_permalink)
       const t = r.last_edited_time
       const permalink = r.properties.permalink.rich_text[0].text.content
       const fileName = `${t.substring(0,4)}_${t.substring(5,7)}_${t.substring(8,10)}_${permalink}.md`
-
+      
+      // ファイル内容を格納する変数
+      let content = ''
+      
       // ページ内容を取得する
       const b = await notion.blocks.children.list({
         block_id: r.id
@@ -86,12 +87,17 @@ async function fetchNotionArticles() {
         content = content + '  \n'
       }
 
+      // -->が正しく入力処理されない問題の対応
+      content = content.replace(/->/g, '-->');
+
       const filePath = path.join(__dirname, "..", "source", "_posts", fileName)
 
       await fs.writeFile(filePath, content, "utf-8")
 
       // ファイル内容を初期化
       content = ''
+
+      // TODO: Notion側のis_postedをtrueにする
     }
   } catch (error) {
     // 適切なエラーハンドリング
